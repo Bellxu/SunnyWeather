@@ -44,7 +44,7 @@ class PlaceFragment:Fragment() {
 //            activity?.finish()
 //            return
 //        }
-
+        //由于有多个activity用到这个fragment所以要判断
         if (activity is MainActivity && viewModel.isSavePlace()) {
             val place = viewModel.getPlace()
             val intent = Intent(context, WeatherActivity::class.java).apply {

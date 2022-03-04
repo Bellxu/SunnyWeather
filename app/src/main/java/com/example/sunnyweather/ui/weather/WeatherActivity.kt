@@ -3,14 +3,19 @@ package com.example.sunnyweather.ui.weather
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.hardware.input.InputManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
@@ -33,14 +38,14 @@ class WeatherActivity : AppCompatActivity() {
             val intent = Intent(context, WeatherActivity::class.java).apply {
             putExtra("location_lat",location_lat)
             putExtra("location_lng",location_lng)
-            putExtra("placeName",placeName)
+            putExtra("place_name",placeName)
             }
             context.startActivity(intent)
 
         }
     }
 
-    private val viewModel by lazy { ViewModelProviders.of(this).get(WeatherViewModel::class.java) }
+     val viewModel by lazy { ViewModelProviders.of(this).get(WeatherViewModel::class.java) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val decorView = window.decorView
@@ -60,7 +65,7 @@ class WeatherActivity : AppCompatActivity() {
             viewModel.lng=intent.getStringExtra("location_lng")?:""
         }
         if (viewModel.placeName.isEmpty()) {
-            viewModel.placeName=intent.getStringExtra("placeName")?:""
+            viewModel.placeName=intent.getStringExtra("place_name")?:""
         }
 
         viewModel.weatherLiveData.observe(this, Observer {
@@ -72,8 +77,39 @@ class WeatherActivity : AppCompatActivity() {
                 "无法获取天气信息".shoToast()
                 result.exceptionOrNull()?.printStackTrace()
             }
+            swipeRefresh.isRefreshing=false
         })
+        swipeRefresh.setColorSchemeResources(R.color.colorPrimary)
+        refreshWeather()
+        swipeRefresh.setOnRefreshListener {
+            refreshWeather()
+        }
+
+        navBtn.setOnClickListener {
+            drawerLayout.openDrawer(GravityCompat.START)
+        }
+        drawerLayout.addDrawerListener(object :DrawerLayout.DrawerListener{
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                //隐藏键盘
+                val manager=getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                manager.hideSoftInputFromWindow(drawerView.windowToken,InputMethodManager.HIDE_NOT_ALWAYS)
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+            }
+
+        })
+    }
+
+    fun refreshWeather(){
         viewModel.refreshWeather(viewModel.lng,viewModel.lat)
+        swipeRefresh.isRefreshing=true
     }
 
     private fun showWeatherInfo(weather: Weather) {
