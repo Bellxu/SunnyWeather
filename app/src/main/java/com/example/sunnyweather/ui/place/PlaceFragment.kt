@@ -1,5 +1,6 @@
 package com.example.sunnyweather.ui.place
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.sunnyweather.MainActivity
 import com.example.sunnyweather.R
+import com.example.sunnyweather.ui.weather.WeatherActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_place.*
 
@@ -30,6 +33,29 @@ class PlaceFragment:Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+//        if (viewModel.isSavePlace()){
+//            val place = viewModel.getPlace()
+//            val intent = Intent(context, WeatherActivity::class.java).apply {
+//                putExtra("location_lat",place.location.lat)
+//                putExtra("location_lng",place.location.lng)
+//                putExtra("placeName",place.name)
+//            }
+//            startActivity(intent)
+//            activity?.finish()
+//            return
+//        }
+
+        if (activity is MainActivity && viewModel.isSavePlace()) {
+            val place = viewModel.getPlace()
+            val intent = Intent(context, WeatherActivity::class.java).apply {
+                putExtra("location_lng", place.location.lng)
+                putExtra("location_lat", place.location.lat)
+                putExtra("place_name", place.name)
+            }
+            startActivity(intent)
+            activity?.finish()
+            return
+        }
         val linearLayoutManager = LinearLayoutManager(activity)
         recyclerView.layoutManager=linearLayoutManager
         adapter= PlaceAdapter(this,viewModel.placeList)
@@ -46,7 +72,7 @@ class PlaceFragment:Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
-        viewModel.placeLiveData.observe(this, Observer {
+        viewModel.placeLiveData.observe(this, {
             result ->
             val places = result.getOrNull()
             if (places!=null) {

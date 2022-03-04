@@ -4,5 +4,5 @@ import android.widget.Toast
 import com.example.sunnyweather.SunnyWeatherApplication
 
 fun String.shoToast(duratin:Int=Toast.LENGTH_SHORT){
-    Toast.makeText(SunnyWeatherApplication.context,this,duratin)
+    Toast.makeText(SunnyWeatherApplication.context,this,duratin).show()
 }

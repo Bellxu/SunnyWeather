@@ -1,6 +1,7 @@
 package com.example.sunnyweather.logic
 
 import androidx.lifecycle.liveData
+import com.example.sunnyweather.logic.dao.PlaceDao
 import com.example.sunnyweather.logic.model.Place
 import com.example.sunnyweather.logic.model.PlaceResponse
 import com.example.sunnyweather.logic.model.Weather
@@ -46,7 +47,7 @@ object Repository {
     }
 
 
-    private fun <T> fire(context: CoroutineContext, block: suspend () -> Result<T>) =
+     fun <T> fire(context: CoroutineContext, block: suspend () -> Result<T>) =
         liveData<Result<T>>(context) {
             val result = try {
                 block()
@@ -55,4 +56,16 @@ object Repository {
             }
             emit(result)
         }
+
+     fun savePlace(place: Place){
+        PlaceDao.savePlace(place)
+    }
+
+     fun getPlace():Place{
+        return PlaceDao.getPlace()
+    }
+
+     fun isSavePlace():Boolean{
+        return PlaceDao.isPlaceSaved()
+    }
 }
